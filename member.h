@@ -4,53 +4,31 @@
 #include "treasure.h"
 #include <cstddef>
 #include <concepts>
+#include <cstdint>
 
-template<typename ValueType, bool IsArmed>
-class Adventurer;
-
-template<typename ValueType>
-class Adventurer<ValueType, false> {
+template<std::integral ValueType, bool IsArmed>
+class Adventurer {
 public:
-    using strength_t = unsigned long;
-    static constexpr bool isArmed = false;
+    using strength_t = uint32_t;
 
-    constexpr Adventurer() = default;
+    static constexpr bool isArmed = IsArmed;
 
-    //todo: to powinno być w jednej funkcji raczej
-    constexpr void loot(Treasure<ValueType, false> &&treasure) {
-         valueSum += treasure.getLoot();
-    }
-    constexpr void loot(Treasure<ValueType, true> &&treasure) {}
+    constexpr Adventurer() requires (!IsArmed) {}
 
-    constexpr ValueType pay() {
-        ValueType res = valueSum;
-        valueSum = 0;
-        return res;
-    }
-private:
-    ValueType valueSum = 0;
-};
+    constexpr Adventurer(strength_t s) requires (IsArmed) : strength(s) {}
 
-template<typename ValueType>
-class Adventurer<ValueType, true> {
+    constexpr strength_t getStrength() requires (IsArmed) { return strength; }
 
-public:
-    using strength_t = unsigned long;
-    static constexpr bool isArmed = true;
-
-    constexpr Adventurer(strength_t s) : strength(s) {}
-
-    constexpr strength_t getStrength() {
-        return strength;
-    }
-
-    constexpr void loot (Treasure<ValueType, true> &&treasure) {
-        strength /= 2;
+    constexpr void loot(SafeTreasure<ValueType>&& treasure) {
         valueSum += treasure.getLoot();
     }
 
-    constexpr void loot(Treasure<ValueType, false> &&treasure) {
-        valueSum += treasure.getLoot();
+    constexpr
+        void loot(TrappedTreasure<ValueType>&& treasure) requires(IsArmed) {
+        if (strength > 0) {
+            strength /= 2;
+            valueSum += treasure.getLoot();
+        }
     }
 
     constexpr ValueType pay() {
@@ -58,35 +36,32 @@ public:
         valueSum = 0;
         return res;
     }
-private:
+
+protected:
     ValueType valueSum = 0;
-    strength_t strength;
+
+    strength_t strength = 0;
 };
 
 template<typename ValueType>
 using Explorer = Adventurer<ValueType, false>;
 
-template <typename ValueType, std::size_t CompletedExpeditions>
-    requires (CompletedExpeditions < 25)
+template <std::integral ValueType, std::size_t CompletedExpeditions>
+requires (CompletedExpeditions < 25)
 class Veteran {
 public:
-    using strength_t = unsigned long;
+    using strength_t = uint32_t;
+
     static constexpr bool isArmed = true;
 
-    constexpr Veteran() {
-        strength = getFib(CompletedExpeditions);
-    }
+    constexpr Veteran() : strength(getFib(CompletedExpeditions)) {}
 
-    constexpr void loot(Treasure<ValueType, false> &&treasure) {
-        valueSum += treasure.getLoot();
-    }
-    constexpr void loot(Treasure<ValueType, true> &&treasure) {
+    template <bool IsArmed>
+    constexpr void loot(Treasure<ValueType, IsArmed> &&treasure) {
         valueSum += treasure.getLoot();
     }
 
-    constexpr strength_t getStrength() {
-        return strength;
-    }
+    constexpr strength_t getStrength() {return strength;}
 
     constexpr ValueType pay() {
         ValueType res = valueSum;
@@ -96,14 +71,15 @@ public:
 
 private:
     ValueType valueSum = 0;
+
     strength_t strength;
 
     constexpr strength_t getFib(std::size_t n) {
         if (n == 0) return 0;
-        size_t prev = 0;
-        size_t cur = 1;
-        for (int i = 2; i <= n; i++) {
-            size_t next = prev + cur;
+        strength_t prev = 0;
+        strength_t cur = 1;
+        for (size_t i = 2; i <= n; i++) {
+            strength_t next = prev + cur;
             prev = cur;
             cur = next;
         }
