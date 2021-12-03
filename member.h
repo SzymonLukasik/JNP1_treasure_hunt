@@ -56,8 +56,8 @@ public:
 
     constexpr Veteran() : strength(getFib(CompletedExpeditions)) {}
 
-    template <bool IsArmed>
-    constexpr void loot(Treasure<ValueType, IsArmed> &&treasure) {
+    template <bool IsTrapped>
+    constexpr void loot(Treasure<ValueType, IsTrapped> &&treasure) {
         valueSum += treasure.getLoot();
     }
 
