@@ -37,6 +37,10 @@ public:
         return res;
     }
 
+    constexpr void addValue(ValueType value) {
+        valueSum += value;
+    }
+
 private:
     ValueType valueSum = 0;
 
@@ -67,6 +71,10 @@ public:
         ValueType res = valueSum;
         valueSum = 0;
         return res;
+    }
+
+    constexpr void addValue(ValueType value) {
+        valueSum += value;
     }
 
 private:
