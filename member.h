@@ -37,7 +37,7 @@ public:
         return res;
     }
 
-protected:
+private:
     ValueType valueSum = 0;
 
     strength_t strength = 0;
