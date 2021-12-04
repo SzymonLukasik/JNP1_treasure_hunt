@@ -6,7 +6,7 @@
 #include <concepts>
 #include <cstdint>
 
-template<std::integral ValueType, bool IsArmed>
+template<IsValueType ValueType, bool IsArmed>
 class Adventurer {
 public:
     using strength_t = uint32_t;
@@ -17,7 +17,8 @@ public:
 
     constexpr Adventurer(strength_t s) requires (IsArmed) : strength(s) {}
 
-    constexpr strength_t getStrength() const requires (IsArmed) {return strength;}
+    constexpr strength_t getStrength() const
+    requires (IsArmed) {return strength;}
 
     constexpr void loot(SafeTreasure<ValueType>&& treasure) {
         valueSum += treasure.getLoot();
@@ -40,9 +41,7 @@ public:
         return res;
     }
 
-    constexpr void addValue(ValueType value) {
-        valueSum += value;
-    }
+    constexpr void addValue(ValueType value) {valueSum += value;}
 
 private:
     ValueType valueSum = 0;
@@ -55,7 +54,7 @@ using Explorer = Adventurer<ValueType, false>;
 
 namespace {const std::size_t MAX_NUMBER_OF_EXPEDITIONS = 24;}
 
-template<std::integral ValueType, std::size_t CompletedExpeditions>
+template<IsValueType ValueType, std::size_t CompletedExpeditions>
 requires (CompletedExpeditions <= MAX_NUMBER_OF_EXPEDITIONS)
 class Veteran {
 public:
@@ -98,6 +97,16 @@ private:
         }
         return cur;
     }
+};
+
+template<typename T>
+concept IsMember = requires (T x) {
+    typename T::strength_t;
+    {[] () constexpr {return T::isArmed;}()};
+    {T::isArmed} -> std::convertible_to<bool>;
+    {x.pay()} -> IsValueType;
+    x.loot(SafeTreasure<decltype(x.pay())>(0));
+    x.loot(TrappedTreasure<decltype(x.pay())>(0));
 };
 
 #endif //__MEMBER_H

@@ -3,7 +3,10 @@
 
 #include<concepts>
 
-template<std::integral ValueType, bool IsTrapped>
+template<typename T>
+concept IsValueType = std::integral<T>;
+
+template<IsValueType ValueType, bool IsTrapped>
 class Treasure {
 public:
     static constexpr bool isTrapped = IsTrapped;
@@ -13,9 +16,9 @@ public:
     constexpr ValueType evaluate() const {return value;};
 
     constexpr ValueType getLoot() {
-        ValueType temp = value;
+        ValueType res = value;
         value = 0;
-        return temp;
+        return res;
     } 
 
 private:
@@ -27,5 +30,10 @@ using SafeTreasure = Treasure<ValueType, false>;
 
 template<typename ValueType>
 using TrappedTreasure = Treasure<ValueType, true>;
+
+template<typename T>
+concept IsTreasure = requires (T x) {
+    {Treasure(x)} -> std::same_as<T>;
+};
 
 #endif //__TREASURE_H
