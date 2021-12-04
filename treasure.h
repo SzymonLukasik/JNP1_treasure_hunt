@@ -3,7 +3,7 @@
 
 #include<concepts>
 
-template <std::integral ValueType, bool IsTrapped>
+template<std::integral ValueType, bool IsTrapped>
 class Treasure {
 public:
     static constexpr bool isTrapped = IsTrapped;
@@ -22,10 +22,10 @@ private:
     ValueType value;
 };
 
-template <typename ValueType>
+template<typename ValueType>
 using SafeTreasure = Treasure<ValueType, false>;
 
-template <typename ValueType>
+template<typename ValueType>
 using TrappedTreasure = Treasure<ValueType, true>;
 
 #endif //__TREASURE_H

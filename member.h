@@ -52,7 +52,7 @@ private:
 template<typename ValueType>
 using Explorer = Adventurer<ValueType, false>;
 
-template <std::integral ValueType, std::size_t CompletedExpeditions>
+template<std::integral ValueType, std::size_t CompletedExpeditions>
 requires (CompletedExpeditions < 25)
 class Veteran {
 public:
