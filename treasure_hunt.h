@@ -9,13 +9,13 @@
 template<typename T>
 concept EncounterSide = IsTreasure<T> || IsMember<T>;
 
-template<EncounterSide sideA, EncounterSide sideB>
-using Encounter = std::pair<sideA&, sideB&>;
+template<EncounterSide T, EncounterSide U>
+using Encounter = std::pair<T&, U&>;
 
 // Spotkanie uczestników: dwóch uzbrojonych
-template<IsMember A, IsMember B>
-requires (A::isArmed && B::isArmed)
-constexpr void run(Encounter<A, B> e) {
+template<IsMember T, IsMember U>
+requires (T::isArmed && U::isArmed)
+constexpr void run(Encounter<T, U> e) {
     if (e.first.getStrength() > e.second.getStrength()) {
         e.first.addValue(e.second.pay());
     } else if (e.first.getStrength() < e.second.getStrength()) {
@@ -24,8 +24,8 @@ constexpr void run(Encounter<A, B> e) {
 }
 
 // Spotkanie uczestników: co najwyżej jeden uzbrojony
-template<IsMember A, IsMember B>
-constexpr void run(Encounter<A, B> e) {
+template<IsMember T, IsMember U>
+constexpr void run(Encounter<T, U> e) {
     if (e.first.isArmed) {
         e.first.addValue(e.second.pay());
     } else if (e.second.isArmed) {
@@ -34,21 +34,21 @@ constexpr void run(Encounter<A, B> e) {
 }
 
 // Uczestnik znajduje skarb
-template<IsMember A, IsTreasure B>
-constexpr void run(Encounter<A, B> e) {
+template<IsMember T, IsTreasure U>
+constexpr void run(Encounter<T, U> e) {
     e.first.loot(std::move(e.second));
 }
 
-template<IsTreasure A, IsMember B>
-constexpr void run(Encounter<A, B> e) {
+template<IsTreasure T, IsMember U>
+constexpr void run(Encounter<T, U> e) {
     e.second.loot(std::move(e.first));
 }
 
-template<EncounterSide A, EncounterSide B>
-constexpr void expedition(Encounter<A, B> e) {run(e);}
+template<EncounterSide T, EncounterSide U>
+constexpr void expedition(Encounter<T, U> e) {run(e);}
 
-template<EncounterSide A, EncounterSide B, typename... Args>
-constexpr void expedition(Encounter<A, B> e, Args... args) {
+template<EncounterSide T, EncounterSide U, typename... Args>
+constexpr void expedition(Encounter<T, U> e, Args... args) {
     run(e);
     expedition(args...);
 }
