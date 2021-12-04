@@ -17,7 +17,7 @@ public:
 
     constexpr Adventurer(strength_t s) requires (IsArmed) : strength(s) {}
 
-    constexpr strength_t getStrength() requires (IsArmed) { return strength; }
+    constexpr strength_t getStrength() const requires (IsArmed) { return strength; }
 
     constexpr void loot(SafeTreasure<ValueType>&& treasure) {
         valueSum += treasure.getLoot();
@@ -67,7 +67,7 @@ public:
         valueSum += treasure.getLoot();
     }
 
-    constexpr strength_t getStrength() {return strength;}
+    constexpr strength_t getStrength() const {return strength;}
 
     constexpr ValueType pay() {
         ValueType res = valueSum;
