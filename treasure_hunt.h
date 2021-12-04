@@ -6,11 +6,23 @@
 #include <utility>
 #include <concepts>
 
-// tmp placeholder concepts
 template<typename T>
-concept EncounterSide = true;
+concept IsTreasure = requires (T x) {
+    {Treasure(x)} -> std::same_as<T>;
+};
+
 template<typename T>
-concept Member = requires(T x) { x.isArmed; }; 
+concept Member = requires(T x) {
+    typename T::strength_t;
+    { [] () constexpr { return T::isArmed; }() };
+    {T::isArmed} -> std::convertible_to<bool>;
+    {x.pay()} -> std::integral;
+    x.loot(Treasure<decltype(x.pay()), true>(0));
+    x.loot(Treasure<decltype(x.pay()), true>(0));
+};
+
+template<typename T>
+concept EncounterSide = IsTreasure<T> || Member<T>;
 
 
 template<EncounterSide sideA, EncounterSide sideB>
