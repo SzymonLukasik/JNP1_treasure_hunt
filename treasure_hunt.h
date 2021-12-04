@@ -12,7 +12,7 @@ concept IsTreasure = requires (T x) {
 };
 
 template<typename T>
-concept Member = requires(T x) {
+concept Member = requires (T x) {
     typename T::strength_t;
     { [] () constexpr { return T::isArmed; }() };
     {T::isArmed} -> std::convertible_to<bool>;
@@ -24,13 +24,12 @@ concept Member = requires(T x) {
 template<typename T>
 concept EncounterSide = IsTreasure<T> || Member<T>;
 
-
 template<EncounterSide sideA, EncounterSide sideB>
 using Encounter = std::pair<sideA&, sideB&>;
 
 // Spotkanie uczestników: dwóch uzbrojonych
 template<Member A, Member B>
-requires(A::isArmed && B::isArmed)
+requires (A::isArmed && B::isArmed)
 constexpr void run(Encounter<A, B> e) {
     if (e.first.getStrength() > e.second.getStrength()) {
         e.first.addValue(e.second.pay());
@@ -50,13 +49,13 @@ constexpr void run(Encounter<A, B> e) {
 }
 
 // Uczestnik znajduje skarb
-template<Member A, typename ValueType, bool IsTrapped>
-constexpr void run(Encounter<A, Treasure<ValueType, IsTrapped>> e) {
+template<Member A, IsTreasure B>
+constexpr void run(Encounter<A, B> e) {
     e.first.loot(std::move(e.second));
 }
 
-template<Member A, typename ValueType, bool IsTrapped>
-constexpr void run(Encounter<Treasure<ValueType, IsTrapped>, A> e) {
+template<IsTreasure A, Member B>
+constexpr void run(Encounter<A, B> e) {
     e.second.loot(std::move(e.first));
 }
 

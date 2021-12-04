@@ -17,7 +17,7 @@ public:
 
     constexpr Adventurer(strength_t s) requires (IsArmed) : strength(s) {}
 
-    constexpr strength_t getStrength() const requires (IsArmed) { return strength; }
+    constexpr strength_t getStrength() const requires (IsArmed) {return strength;}
 
     constexpr void loot(SafeTreasure<ValueType>&& treasure) {
         valueSum += treasure.getLoot();
@@ -31,7 +31,8 @@ public:
         }
     }
 
-    constexpr void loot([[maybe_unused]] TrappedTreasure<ValueType>&& treasure) requires(!IsArmed) {}
+    constexpr void loot([[maybe_unused]] TrappedTreasure<ValueType>&& treasure) 
+        requires(!IsArmed) {}
 
     constexpr ValueType pay() {
         ValueType res = valueSum;
@@ -52,8 +53,10 @@ private:
 template<typename ValueType>
 using Explorer = Adventurer<ValueType, false>;
 
+namespace {const std::size_t MAX_NUMBER_OF_EXPEDITIONS = 24;}
+
 template<std::integral ValueType, std::size_t CompletedExpeditions>
-requires (CompletedExpeditions < 25)
+requires (CompletedExpeditions <= MAX_NUMBER_OF_EXPEDITIONS)
 class Veteran {
 public:
     using strength_t = uint32_t;
@@ -62,7 +65,7 @@ public:
 
     constexpr Veteran() : strength(getFib(CompletedExpeditions)) {}
 
-    template <bool IsTrapped>
+    template<bool IsTrapped>
     constexpr void loot(Treasure<ValueType, IsTrapped> &&treasure) {
         valueSum += treasure.getLoot();
     }
