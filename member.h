@@ -31,7 +31,7 @@ public:
         }
     }
 
-    constexpr void loot(TrappedTreasure<ValueType>&& treasure) requires(!IsArmed) {}
+    constexpr void loot([[maybe_unused]] TrappedTreasure<ValueType>&& treasure) requires(!IsArmed) {}
 
     constexpr ValueType pay() {
         ValueType res = valueSum;
